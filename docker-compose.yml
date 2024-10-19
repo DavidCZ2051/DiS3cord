@@ -5,10 +5,19 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      - MINIO_ACCESS_KEY=root
-      - MINIO_SECRET_KEY=rootroot
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    volumes:
+      - object_storage:/data
 
   discord_bot:
     build: discord_bot
+    ports:
+      - "5000:5000"
     environment:
-      - DISCORD_TOKEN=token
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - MAX_UPLOAD_SIZE_MEGABYTES=${MAX_UPLOAD_SIZE_MEGABYTES}
+      - WEB_INTERFACE_URL=${WEB_INTERFACE_URL}
+
+volumes:
+  object_storage:
