@@ -1,0 +1,14 @@
+services:
+  object_storage:
+    build: object_storage
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ACCESS_KEY=root
+      - MINIO_SECRET_KEY=rootroot
+
+  discord_bot:
+    build: discord_bot
+    environment:
+      - DISCORD_TOKEN=token
