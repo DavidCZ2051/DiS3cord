@@ -9,7 +9,7 @@
     <h1>File is too large</h1>
 
     <p>The file you tried to upload is too large. Please try again with a smaller file.</p>
-    <p>The maximum allowed file size is {{ max_upload_file_size }} MB</p>
-    <p><a href="/">Back</a></p>
+    <p>The maximum allowed file size is {{ max_upload_file_size }} MB. The file you tried to upload is {{ file_size }} MB.</p>
+    <button onclick="window.location.pathname = '/';">Go back</button>
 </body>
 </html>

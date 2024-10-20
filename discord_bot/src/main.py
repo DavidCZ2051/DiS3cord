@@ -1,9 +1,8 @@
-from os import getenv
-import threading
-
 if __name__ == "__main__":
     from bot import client
     from web_interface import app
+    from os import getenv
+    import threading
 
     def run_flask():
         app.run(host="0.0.0.0", port=5000)

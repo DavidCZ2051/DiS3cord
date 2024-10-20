@@ -1,16 +1,18 @@
 services:
-  object_storage:
+  object-storage:
     build: object_storage
     ports:
       - "9000:9000"
       - "9001:9001"
+    expose:
+      - "9000"
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     volumes:
       - object_storage:/data
 
-  discord_bot:
+  discord-bot:
     build: discord_bot
     ports:
       - "5000:5000"
@@ -18,6 +20,8 @@ services:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - MAX_UPLOAD_SIZE_MEGABYTES=${MAX_UPLOAD_SIZE_MEGABYTES}
       - WEB_INTERFACE_URL=${WEB_INTERFACE_URL}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
 
 volumes:
   object_storage:
