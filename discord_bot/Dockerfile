@@ -8,4 +8,4 @@ RUN pip install -r requirements.txt --no-cache-dir
 
 COPY /src .
 
-CMD ["python", "main.py"]
+CMD ["python", "-u", "main.py"]

@@ -1,4 +1,3 @@
-from typing import BinaryIO
 from flask import Flask, render_template, request
 from bot import send_file_uploaded_message, upload_requests
 from os import getenv
@@ -28,16 +27,15 @@ def upload():
 
     file = request.files["file"]
 
-    if file.filename == '':
+    if file.filename == "":
         return "No selected file"
 
-    # TODO: Upload file to minio
+    print(f"Uploading file {file.filename} to MinIO")
+    print(f"File size: {file.content_length}")
 
     file.stream.seek(0)
 
-    app.logger.info(f"Uploading file {file.filename} to MinIO")
-    app.logger.info(f"File size: {file.content_length}")
-    app.logger.info(f"File stream: {file.stream.read()}")
+    # TODO: Fix file upload not working - file gets uploaded to MinIO but has 0 bytes
 
     client.put_object(
         "data",
@@ -47,7 +45,7 @@ def upload():
         file.content_type
     )
 
-    # send_file_uploaded_message(f"File uploaded: {file.filename}", int(request.args.get("token")))
+    send_file_uploaded_message(file.filename, request.args.get("token"))
 
     return file.filename
 
