@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request
 from bot import send_file_uploaded_message, upload_requests
-from os import getenv
+from flask import Flask, render_template, request
+from functions import get_stream_size
 from minio import Minio
+from os import getenv
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = int(getenv("MAX_UPLOAD_SIZE_MEGABYTES")) * 1024 * 1024
@@ -30,22 +31,17 @@ def upload():
     if file.filename == "":
         return "No selected file"
 
-    print(f"Uploading file {file.filename} to MinIO")
-    print(f"File size: {file.content_length}")
-
-    file.stream.seek(0)
-
-    # TODO: Fix file upload not working - file gets uploaded to MinIO but has 0 bytes
+    file_size = get_stream_size(file.stream)
 
     client.put_object(
         "data",
         file.filename,
         file.stream,
-        file.content_length,
+        file_size,
         file.content_type
     )
 
-    send_file_uploaded_message(file.filename, request.args.get("token"))
+    send_file_uploaded_message(file.filename, file_size, file.content_type, request.args.get("token"))
 
     return file.filename
 
