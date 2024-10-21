@@ -5,7 +5,8 @@ from minio import Minio
 from os import getenv
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = int(getenv("MAX_UPLOAD_SIZE_MEGABYTES")) * 1024 * 1024
+if max_file_size := int(getenv("MAX_UPLOAD_SIZE_MEGABYTES")) > -1:
+    app.config["MAX_CONTENT_LENGTH"] = max_file_size * 1024 * 1024
 
 client = Minio(
     "object-storage:9000",
