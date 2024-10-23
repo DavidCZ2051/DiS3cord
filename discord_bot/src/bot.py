@@ -1,7 +1,7 @@
-import asyncio
 from discord import app_commands, Embed, Client, Interaction, Message, Intents
+from functions import format_file_size, sanitize_from_discord_markdown
 from classes import UploadRequest, ShowButtonView
-from functions import format_file_size
+from urllib.parse import quote
 from os import getenv
 
 # Holds all the upload requests that are currently active
@@ -37,7 +37,7 @@ tree = app_commands.CommandTree(client)
     description="Opens a web interface for file upload.",
 )
 async def open_upload_interface(interaction: Interaction):
-    upload_request = UploadRequest(interaction.channel_id, interaction.user.id)
+    upload_request = UploadRequest(interaction.channel_id, interaction.channel.name, interaction.user.id)
     upload_requests.append(upload_request)
 
     await interaction.response.send_message(f"{getenv("WEB_INTERFACE_URL")}/?token={upload_request.token}", ephemeral=True)
@@ -51,13 +51,24 @@ def send_file_uploaded_message(file_name: str, file_size: int, content_type: str
 
     embed = Embed(title="File uploaded")
     embed.set_author(name=user.name, icon_url=user.avatar.url)
-    embed.add_field(name="File name", value=file_name)
+    embed.add_field(name="File name", value=sanitize_from_discord_markdown(file_name))
     embed.add_field(name="File size", value=format_file_size(file_size))
     embed.add_field(name="Content type", value=content_type)
 
+    # Image preview
+    if content_type.startswith("image/"):
+        embed.set_image(url=f"{getenv("OBJECT_STORAGE_URL")}/data/{quote(file_name)}")
+
     async def send_message(embed: Embed):
         await channel.send(embed=embed, view=ShowButtonView(file_name))
-
-    client.loop.create_task(send_message(embed))
+        
+    async def send_video_message(file_name: str):
+        await channel.send(f"{getenv("OBJECT_STORAGE_URL")}/data/{quote(file_name)}")
 
     upload_requests.remove(upload_request)
+
+    client.loop.create_task(send_message(embed))
+    
+    # Video preview - needs to be sent in a separate message in order to be displayed by Discord
+    if content_type.startswith("video/"):
+        client.loop.create_task(send_video_message(file_name))
