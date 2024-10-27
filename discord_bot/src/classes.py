@@ -5,10 +5,11 @@ from os import getenv
 
 class UploadRequest:
     channel_id: int
+    channel_name: str
     user_id: int
     token: str
 
-    def __init__(self, channel_id: int, user_id: int):
+    def __init__(self, channel_id: int, channel_name: str, user_id: int):
         self.channel_id = channel_id
         self.user_id = user_id
         self.token = str(uuid4())

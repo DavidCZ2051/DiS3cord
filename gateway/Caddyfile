@@ -1,0 +1,17 @@
+localhost {
+    tls {
+        on_demand
+    }
+    
+    handle_path /web/* {
+        reverse_proxy http://discord-bot:5000
+    }
+
+	handle_path /storage-console/* {
+		reverse_proxy http://object-storage:9001
+	}
+
+    handle_path /storage/* {
+        reverse_proxy http://object-storage:9000
+    }
+}

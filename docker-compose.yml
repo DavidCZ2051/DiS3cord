@@ -1,21 +1,15 @@
 services:
   object-storage:
     build: object_storage
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    expose:
-      - "9000"
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_BROWSER_REDIRECT_URL=${OBJECT_STORAGE_CONSOLE_URL}
     volumes:
       - object_storage:/data
 
   discord-bot:
     build: discord_bot
-    ports:
-      - "5000:5000"
     init: true
     environment:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
@@ -24,6 +18,16 @@ services:
       - OBJECT_STORAGE_URL=${OBJECT_STORAGE_URL}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    depends_on:
+      - object-storage
+
+  gateway:
+    build: gateway
+    ports:
+      - "443:443"
+    depends_on:
+      - object-storage
+      - discord-bot
 
 volumes:
   object_storage:
