@@ -11,6 +11,7 @@ class UploadRequest:
 
     def __init__(self, channel_id: int, channel_name: str, user_id: int):
         self.channel_id = channel_id
+        self.channel_name = channel_name
         self.user_id = user_id
         self.token = str(uuid4())
 

@@ -24,7 +24,9 @@ def index():
 
 @app.route("/", methods=["POST"])
 def upload():
-    if request.args.get("token") not in [request.token for request in upload_requests]:
+    token = request.args.get("token")
+
+    if token not in [request.token for request in upload_requests]:
         return "Invalid token", 403
 
     file = request.files["file"]
@@ -34,15 +36,21 @@ def upload():
 
     file_size = get_stream_size(file.stream)
 
+    upload_request = [request for request in upload_requests if request.token == token][0]
+
     client.put_object(
         "data",
         file.filename,
         file.stream,
         file_size,
-        file.content_type
+        file.content_type,
+        metadata={
+            "user_id": upload_request.user_id,
+            "channel_id": upload_request.channel_id,
+        }
     )
 
-    send_file_uploaded_message(file.filename, file_size, file.content_type, request.args.get("token"))
+    send_file_uploaded_message(file.filename, file_size, file.content_type, token)
 
     return file.filename
 

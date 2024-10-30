@@ -1,6 +1,7 @@
 from discord import app_commands, Embed, Client, Interaction, Message, Intents
 from functions import format_file_size, sanitize_from_discord_markdown
 from classes import UploadRequest, ShowButtonView
+from discord.app_commands import Choice
 from urllib.parse import quote
 from os import getenv
 
