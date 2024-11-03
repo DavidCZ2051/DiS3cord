@@ -6,10 +6,10 @@ from os import getenv
 class UploadRequest:
     channel_id: int
     channel_name: str
-    user_id: int
+    user_id: int | None # If the upload is anonymous, user id will be None
     token: str
 
-    def __init__(self, channel_id: int, channel_name: str, user_id: int):
+    def __init__(self, channel_id: int, channel_name: str, user_id: int | None):
         self.channel_id = channel_id
         self.channel_name = channel_name
         self.user_id = user_id
