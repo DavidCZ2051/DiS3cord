@@ -38,6 +38,11 @@ tree = app_commands.CommandTree(client)
 )
 @app_commands.describe(anonymous="Whether the upload should be anonymous.")
 async def open_upload_interface(interaction: Interaction, anonymous: bool = False):
+    # Check if anonymous uploads are disabled
+    if anonymous and getenv("ALLOW_ANONYMOUS_UPLOADS") == "false":
+        await interaction.response.send_message("Anonymous uploads are disabled.", ephemeral=True)
+        return
+
     upload_request = UploadRequest(interaction.channel_id, interaction.channel.name, interaction.user.id if not anonymous else None)
     upload_requests.append(upload_request)
 
@@ -51,6 +56,7 @@ def send_file_uploaded_message(file_name: str, file_size: int, content_type: str
 
     embed = Embed(title="File uploaded")
 
+    # Embed author
     if upload_request.user_id != None:
         user = client.get_user(upload_request.user_id)
         embed.set_author(name=user.name, icon_url=user.avatar.url)
