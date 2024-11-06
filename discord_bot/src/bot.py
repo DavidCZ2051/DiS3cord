@@ -1,6 +1,6 @@
 from discord import app_commands, Embed, Client, Interaction, Message, Intents
 from functions import format_file_size, sanitize_from_discord_markdown
-from classes import UploadRequest, ShowButtonView
+from classes import UploadRequest, ShowButtonView, OpenButtonView
 from urllib.parse import quote
 from os import getenv
 
@@ -52,7 +52,7 @@ async def open_upload_interface(interaction: Interaction, anonymous: bool = Fals
     upload_request = UploadRequest(interaction.channel_id, interaction.channel.name, interaction.user.id if not anonymous else None, permanent)
     upload_requests.append(upload_request)
 
-    await interaction.response.send_message(f"{getenv("WEB_INTERFACE_URL")}/?token={upload_request.token}", ephemeral=True)
+    await interaction.response.send_message("Upload request created successfully ✅\nClick the button bellow to continue to file upload.", ephemeral=True, view=OpenButtonView(upload_request.token))
 
 
 def send_file_uploaded_message(file_name: str, file_size: int, content_type: str, token: str):

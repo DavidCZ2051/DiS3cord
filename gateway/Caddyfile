@@ -2,7 +2,7 @@ localhost {
     tls {
         on_demand
     }
-    
+
     handle_path /web/* {
         reverse_proxy http://discord-bot:5000
     }
@@ -13,5 +13,10 @@ localhost {
 
     handle_path /storage/* {
         reverse_proxy http://object-storage:9000
+    }
+
+    handle /favicon.ico {
+        root /var/www/assets
+        file_server
     }
 }

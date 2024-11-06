@@ -2,6 +2,7 @@ from bot import send_file_uploaded_message, upload_requests
 from functions import get_stream_size, check_if_file_exists
 from flask import Flask, render_template, request
 from classes import UploadRequest
+from urllib.parse import quote
 from minio import Minio
 from os import getenv
 
@@ -19,9 +20,18 @@ client = Minio(
 
 @app.route("/", methods=["GET"])
 def index():
-    if request.args.get("token") not in [request.token for request in upload_requests]:
+    token = request.args.get("token")
+    filtered_upload_requests: list[UploadRequest] = [request for request in upload_requests if request.token == token]
+    upload_request = None if len(filtered_upload_requests) == 0 else filtered_upload_requests[0]
+
+    if upload_request == None:
         return "Invalid token", 403
-    return render_template("index.html")
+    
+    return render_template(
+        "index.html",
+        channel_name=upload_request.channel_name,
+        anonymous=" " if upload_request.user_id != None else " anonymous ",
+    )
 
 
 @app.route("/", methods=["POST"])
@@ -59,7 +69,7 @@ def upload():
 
     # Object location is not returned - we're assuming the object is in the root of the bucket.
     # Needs later refactoring if we decide to store objects in directories.
-    return {"url": f"{getenv("OBJECT_STORAGE_URL")}/{result.bucket_name}/{result.object_name}"}, 201
+    return {"url": f"{getenv("OBJECT_STORAGE_URL")}/{result.bucket_name}/{quote(result.object_name)}"}, 201
 
 
 @app.errorhandler(413)

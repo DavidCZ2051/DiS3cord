@@ -18,6 +18,17 @@ class UploadRequest:
         self.permanent = permanent
 
 
+class OpenButtonView(ui.View):
+    def __init__(self, token: str):
+        super().__init__(timeout=None)
+
+        self.add_item(ui.Button(
+            label="Open web interface",
+            style=enums.ButtonStyle.link,
+            url=f"{getenv("WEB_INTERFACE_URL")}/?token={token}"
+        ))
+
+
 class ShowButtonView(ui.View):
     def __init__(self, file_name: str):
         super().__init__(timeout=None)
