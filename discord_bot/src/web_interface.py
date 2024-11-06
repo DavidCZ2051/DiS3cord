@@ -1,12 +1,14 @@
 from bot import send_file_uploaded_message, upload_requests
+from functions import get_stream_size, check_if_file_exists
 from flask import Flask, render_template, request
-from functions import get_stream_size
+from classes import UploadRequest
 from minio import Minio
 from os import getenv
 
 app = Flask(__name__)
 if max_file_size := int(getenv("MAX_UPLOAD_SIZE_MEGABYTES")) > -1:
     app.config["MAX_CONTENT_LENGTH"] = max_file_size * 1024 * 1024
+
 
 client = Minio(
     "object-storage:9000",
@@ -38,7 +40,10 @@ def upload():
 
     upload_request = [request for request in upload_requests if request.token == token][0]
 
-    client.put_object(
+    if check_if_file_exists(client, "data", file.filename):
+        return {"error": "File with this name already exists"}, 409
+
+    result = client.put_object(
         "data",
         file.filename,
         file.stream,
@@ -52,7 +57,9 @@ def upload():
 
     send_file_uploaded_message(file.filename, file_size, file.content_type, token)
 
-    return file.filename
+    # Object location is not returned - we're assuming the object is in the root of the bucket.
+    # Needs later refactoring if we decide to store objects in directories.
+    return {"url": f"{getenv("OBJECT_STORAGE_URL")}/{result.bucket_name}/{result.object_name}"}, 201
 
 
 @app.errorhandler(413)
