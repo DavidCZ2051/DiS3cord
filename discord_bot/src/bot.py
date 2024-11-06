@@ -37,13 +37,19 @@ tree = app_commands.CommandTree(client)
     description="Opens a web interface for file upload.",
 )
 @app_commands.describe(anonymous="Whether the upload should be anonymous.")
-async def open_upload_interface(interaction: Interaction, anonymous: bool = False):
+@app_commands.describe(permanent="Whether the upload request token is permanent. This allows for multiple uploads with the same token. WARNING: This can be a security risk if the token is shared.")
+async def open_upload_interface(interaction: Interaction, anonymous: bool = False, permanent: bool = False):
     # Check if anonymous uploads are disabled
     if anonymous and getenv("ALLOW_ANONYMOUS_UPLOADS") == "false":
         await interaction.response.send_message("Anonymous uploads are disabled.", ephemeral=True)
         return
 
-    upload_request = UploadRequest(interaction.channel_id, interaction.channel.name, interaction.user.id if not anonymous else None)
+    # Check if permanent tokens are disabled
+    if permanent and getenv("ALLOW_PERMANENT_TOKENS") == "false":
+        await interaction.response.send_message("Permanent tokens are disabled.", ephemeral=True)
+        return
+
+    upload_request = UploadRequest(interaction.channel_id, interaction.channel.name, interaction.user.id if not anonymous else None, permanent)
     upload_requests.append(upload_request)
 
     await interaction.response.send_message(f"{getenv("WEB_INTERFACE_URL")}/?token={upload_request.token}", ephemeral=True)
@@ -77,7 +83,8 @@ def send_file_uploaded_message(file_name: str, file_size: int, content_type: str
     async def send_video_message(file_name: str):
         await channel.send(f"{getenv("OBJECT_STORAGE_URL")}/data/{quote(file_name)}")
 
-    upload_requests.remove(upload_request)
+    if not upload_request.permanent:
+        upload_requests.remove(upload_request)
 
     client.loop.create_task(send_message(embed))
     
