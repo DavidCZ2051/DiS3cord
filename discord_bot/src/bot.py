@@ -31,6 +31,17 @@ client = Client(intents=intents)
 
 tree = app_commands.CommandTree(client)
 
+@tree.command(
+    name="about",
+    description="Shows information about the bot and basic usage instructions.",
+)
+async def about_message(interaction: Interaction):
+    embed = Embed(title="About", description="This is a simple Discord bot that allows users to upload files through a web interface.")
+    embed.add_field(name="Source code", value="[GitHub](https://github.com/DavidCZ2051/DiS3cord)")
+    embed.add_field(name="Author", value="DavidCZ2051")
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 @tree.command(
     name="upload",

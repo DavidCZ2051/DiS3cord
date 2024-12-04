@@ -1,0 +1,54 @@
+
+body {
+    background-color: var(--black-color);
+    color: var(--white-color);
+    text-align: center;
+}
+
+h1 {
+    margin-top: 50px;
+    font-family: "gg sans SemiBold", sans-serif;
+}
+
+#file-input {
+    display: none;
+}
+
+#drop-area {
+    border: 2px dashed #b9bbbe;
+    border-radius: 20px;
+    width: 80%;
+    margin: 50px auto;
+    padding: 20px;
+    font-family: "gg sans Normal", sans-serif;
+}
+
+#drop-area:hover {
+    border-color: #dbdee1;
+    cursor: pointer;
+}
+
+#drop-area.highlight {
+    border-color: var(--blurple-color);
+}
+
+#upload-button {
+    background-color: var(--blurple-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-family: "gg sans SemiBold", sans-serif;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+#upload-button:disabled {
+    background-color: #454C95;
+    color: var(--white-color);
+}
+
+#upload-button:not(:disabled):hover {
+    background-color: #4752C4;
+    cursor: pointer;
+}

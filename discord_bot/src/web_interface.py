@@ -18,6 +18,7 @@ client = Minio(
     secure=False
 )
 
+
 @app.route("/", methods=["GET"])
 def index():
     token = request.args.get("token")
@@ -25,12 +26,13 @@ def index():
     upload_request = None if len(filtered_upload_requests) == 0 else filtered_upload_requests[0]
 
     if upload_request == None:
-        return "Invalid token", 403
+        return render_template("403.html", gateway_url=getenv("GATEWAY_URL")), 403
     
     return render_template(
         "index.html",
         channel_name=upload_request.channel_name,
         anonymous=" " if upload_request.user_id != None else " anonymous ",
+        gateway_url=getenv("GATEWAY_URL")
     )
 
 

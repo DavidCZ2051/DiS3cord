@@ -15,14 +15,15 @@ localhost {
         reverse_proxy http://object-storage:9000
 
         header {
+            # Dissalow javascript execution for hosted files
             Content-Security-Policy "default-src 'none'; img-src 'self'; object-src 'none';"
             X-Content-Type-Options "nosniff"
             X-Frame-Options "DENY"
         }
     }
 
-    handle /favicon.ico {
-        root /var/www/assets
+    handle /* {
+        root /var/www/static
         file_server
     }
 }

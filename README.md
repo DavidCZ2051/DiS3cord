@@ -1,5 +1,6 @@
 # TODO
 
+- Discord about message
 - Better web interface UI
 - Automatic first time MinIO setup
 - Multipart upload and upload progress

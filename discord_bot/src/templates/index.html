@@ -4,64 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.cdnfonts.com/css/gg-sans-2" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/gg-sans-2">
+    <link rel="stylesheet" href="{{ gateway_url }}/styles/styles.css">
+    <link rel="stylesheet" href="{{ gateway_url }}/styles/index.css">
     <title>File upload</title>
-
-    <style>
-        body {
-            background-color: #23272A;
-            text-align: center;
-            color: #FFFFFF;
-        }
-
-        h1 {
-            margin-top: 50px;
-            font-family: "gg sans SemiBold", sans-serif;
-        }
-
-        #file-input {
-            display: none;
-        }
-
-        #drop-area {
-            border: 2px dashed #b9bbbe;
-            border-radius: 20px;
-            width: 80%;
-            margin: 50px auto;
-            padding: 20px;
-            font-family: "gg sans Normal", sans-serif;
-        }
-
-        #drop-area:hover {
-            border-color: #dbdee1;
-            cursor: pointer;
-        }
-
-        #drop-area.highlight {
-            border-color: #5865F2;
-        }
-
-        #upload-button {
-            background-color: #5865F2;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            font-family: "gg sans SemiBold", sans-serif;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-
-        #upload-button:disabled {
-            background-color: #454C95;
-            color: #FFFFFF;
-        }
-
-        #upload-button:not(:disabled):hover {
-            background-color: #4752C4;
-            cursor: pointer;
-        }
-    </style>
 </head>
 
 <body>
@@ -69,15 +15,10 @@
 
     <div id="drop-area">
         <p id="text">Drag & Drop a file here or click to select a file</p>
-        <input type="file" id="file-input" onchange="handleFiles(this.files)">
+        <input type="file" id="file-input" onchange="handleFiles(this.files, 'form')">
     </div>
 
     <button id="upload-button" disabled onclick="sendFile()">Upload</button>
-
-    <!-- <form method="POST" action="" enctype="multipart/form-data">
-        <p><input type="file" name="file"></p>
-        <p><input type="submit" value="Submit"></p>
-    </form> -->
 
     <script>
         const token = new URLSearchParams(window.location.search).get("token");
@@ -109,18 +50,23 @@
             const dt = e.dataTransfer;
             const files = dt.files;
 
-            handleFiles(files);
+            dropArea.classList.remove("highlight");
+            handleFiles(files, "drag&drop");
         }
 
-        function handleFiles(files) {
-            if (files.length > 0) {
-                currentFile = files[0];
-                uploadButton.disabled = false;
-                document.getElementById("text").textContent = `File: ${currentFile.name}`;
-            } else {
-                uploadButton.disabled = true;
-                document.getElementById("text").textContent = "Drag & Drop a file here or click to select a file";
+        function handleFiles(files, type) {
+            // no file is selected
+            if (type == "form" && files.length == 0) return;
+
+            // dropped object is a folder
+            if (files[0].type == "") {
+                alert("Cannot select a folder, file with no extension or a shortcut.");
+                return;
             }
+
+            currentFile = files[0];
+            uploadButton.disabled = false;
+            document.getElementById("text").innerText = `File: ${currentFile.name}\nSize: ${currentFile.size} bytes`;
         }
 
         async function sendFile() {
