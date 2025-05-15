@@ -16,7 +16,7 @@ localhost {
 
         header {
             # Dissalow javascript execution for hosted files
-            Content-Security-Policy "default-src 'none'; img-src 'self'; object-src 'none';"
+            Content-Security-Policy "default-src 'self'; script-src 'none'; object-src 'none'; frame-ancestors 'none';"
             X-Content-Type-Options "nosniff"
             X-Frame-Options "DENY"
         }
