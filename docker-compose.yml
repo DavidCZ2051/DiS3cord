@@ -21,6 +21,7 @@ services:
       - OBJECT_STORAGE_URL=${OBJECT_STORAGE_URL}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - VERSION=${VERSION}
     depends_on:
       - object-storage
 

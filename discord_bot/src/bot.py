@@ -10,10 +10,10 @@ from os import getenv
 upload_requests: list[UploadRequest] = []
 
 
-class Client(Client):
+class ClientBot(Client):
     async def on_ready(self):
         print(f"Logged on as {self.user}!")
-        await tree.sync()
+        await tree.sync() #app_commands.CommandTree(self).sync()
 
     async def on_message(self, message: Message):
         if message.author == self.user:
@@ -27,7 +27,7 @@ intents = Intents.default()
 intents.message_content = True
 intents.members = True
 
-client = Client(intents=intents)
+client = ClientBot(intents=intents)
 
 tree = app_commands.CommandTree(client)
 
@@ -37,8 +37,9 @@ tree = app_commands.CommandTree(client)
 )
 async def about_message(interaction: Interaction):
     embed = Embed(title="About", description="This is a simple Discord bot that allows users to upload files through a web interface.")
-    embed.add_field(name="Source code", value="[GitHub](https://github.com/DavidCZ2051/DiS3cord)")
-    embed.add_field(name="Author", value="DavidCZ2051")
+    embed.add_field(name="Source code", value="[GitHub](https://github.com/DavidCZ2051/DiS3cord/)")
+    embed.add_field(name="Author", value="[DavidCZ2051](https://github.com/DavidCZ2051/)")
+    embed.add_field(name="Version", value=getenv("VERSION"))
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -60,7 +61,21 @@ async def open_upload_interface(interaction: Interaction, anonymous: bool = Fals
         await interaction.response.send_message("Permanent tokens are disabled.", ephemeral=True)
         return
 
-    upload_request = UploadRequest(interaction.channel_id, interaction.channel.name, interaction.user.id if not anonymous else None, permanent)
+    channel_type = type(interaction.channel).__name__
+    display_name, channel_id = None, None
+    match channel_type:
+        case "TextChannel":
+            display_name = interaction.channel.name
+            channel_id = interaction.channel_id
+        #case "DMChannel":
+        #    display_name = interaction.channel.recipient.name
+        #    channel_id = interaction.channel.recipients[1].id
+        case _:
+            raise ValueError(f"Unsupported channel type: {channel_type}")
+    assert display_name is not None
+    assert channel_id is not None
+
+    upload_request = UploadRequest(channel_id, channel_type, display_name, interaction.user.id if not anonymous else None, permanent)
     upload_requests.append(upload_request)
 
     await interaction.response.send_message("Upload request created successfully ✅\nClick the button bellow to continue to file upload.", ephemeral=True, view=OpenButtonView(upload_request.token))
@@ -69,7 +84,17 @@ async def open_upload_interface(interaction: Interaction, anonymous: bool = Fals
 def send_file_uploaded_message(file_name: str, file_size: int, content_type: str, token: str):
     upload_request = [request for request in upload_requests if request.token == token][0]
 
-    channel = client.get_channel(upload_request.channel_id)
+    channel = None
+    match upload_request.channel_type:
+        case "TextChannel":
+            channel = client.get_channel(upload_request.channel_id)
+            print(f"Text channel: {channel}")
+        #case "DMChannel":
+        #    channel = client.get_user(upload_request.channel_id)
+        #    print(f"DM channel: {channel}")
+        case _:
+            raise ValueError(f"Unsupported channel type: {upload_request.channel_type}")
+    assert channel is not None
 
     embed = Embed(title="File uploaded")
 
