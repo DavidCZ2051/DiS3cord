@@ -1,4 +1,3 @@
-from bot import send_file_uploaded_message, upload_requests
 from functions import get_stream_size, check_if_file_exists
 from flask import Flask, render_template, request
 from classes import UploadRequest
@@ -27,7 +26,7 @@ def index():
 
     if upload_request == None:
         return render_template("403.html", gateway_url=getenv("GATEWAY_URL")), 403
-    
+
     return render_template(
         "index.html",
         channel_name=upload_request.channel_name,

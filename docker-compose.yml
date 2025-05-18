@@ -19,11 +19,30 @@ services:
       - ALLOW_PERMANENT_TOKENS=${ALLOW_PERMANENT_TOKENS}
       - WEB_INTERFACE_URL=${WEB_INTERFACE_URL}
       - OBJECT_STORAGE_URL=${OBJECT_STORAGE_URL}
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - VERSION=${VERSION}
     depends_on:
       - object-storage
+  
+  web-interface:
+    build: web_interface
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - GATEWAY_URL=${GATEWAY_URL}
+      - MAX_UPLOAD_SIZE_MEGABYTES=${MAX_UPLOAD_SIZE_MEGABYTES}
+      - ALLOW_ANONYMOUS_UPLOADS=${ALLOW_ANONYMOUS_UPLOADS}
+      - ALLOW_PERMANENT_TOKENS=${ALLOW_PERMANENT_TOKENS}
+      - WEB_INTERFACE_URL=${WEB_INTERFACE_URL}
+      - OBJECT_STORAGE_URL=${OBJECT_STORAGE_URL}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    depends_on:
+      - object-storage
+      - discord-bot
+    expose:
+      - "5000"
+
+  database:
+    build: database
 
   gateway:
     build: gateway
@@ -32,6 +51,7 @@ services:
     depends_on:
       - object-storage
       - discord-bot
+      - web-interface
 
 volumes:
   object_storage:
